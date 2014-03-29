@@ -1,0 +1,27 @@
+server {
+	listen 80;
+	server_name pirduha.grigoriev.me;
+	access_log /var/log/nginx/pirduha.access.log;
+	error_log /var/log/nginx/pirduha.error.log notice;
+	rewrite_log on;
+
+	location = / {
+		rewrite .* http://grigoriev.me/pirduha permanent;
+	}
+
+	location ~ /\. { return 403; }
+
+	location ~ \.php$ {
+		include /etc/nginx/fastcgi_params;
+		fastcgi_pass unix:/var/run/php5-fpm.sock;
+		fastcgi_index index.php;
+		fastcgi_param SCRIPT_FILENAME /var/www/pirduha.grigoriev.me/$fastcgi_script_name;
+	  fastcgi_param PATH_INFO $fastcgi_script_name;
+	}
+
+	location ~* .(crx|xml)$ {
+    root /var/www/pirduha.grigoriev.me;
+    if_modified_since exact;
+    expires 0;
+  }
+}
